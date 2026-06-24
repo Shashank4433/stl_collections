@@ -19,8 +19,9 @@ public:
     DynamicArray();
     ~DynamicArray();
 
-    DynamicArray(const DynamicArray& other);
-    DynamicArray& operator=(const DynamicArray& other);
+     DynamicArray(const DynamicArray& other);er);
+     DynamicArray& operator=(const DynamicArray& other); 
+        
 
     void append(const T& value);
     void insert(int index, const T& value);
