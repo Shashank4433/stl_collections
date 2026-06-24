@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <new>
 
 template<typename T>
 class DynamicArray
@@ -43,13 +44,20 @@ DynamicArray<T>::DynamicArray()
 {
     currentCapacity = 4;
     currentSize = 0;
-    data = new T[currentCapacity];
+    data = (T*)std::malloc(currentCapacity * sizeof(T));
 }
 
 template<typename T>
 DynamicArray<T>::~DynamicArray()
 {
-    delete[] data;
+    if (data != nullptr)
+    {
+        for (int i = 0; i < currentSize; i++)
+        {
+            data[i].~T();
+        }
+        std::free(data);
+    }
 }
 
 template<typename T>
@@ -57,14 +65,15 @@ void DynamicArray<T>::resize()
 {
     currentCapacity *= 2;
 
-    T* temp = new T[currentCapacity];
+    T* temp = (T*)std::malloc(currentCapacity * sizeof(T));
 
     for (int i = 0; i < currentSize; i++)
     {
-        temp[i] = data[i];
+        new (&temp[i]) T(data[i]);
+        data[i].~T();
     }
 
-    delete[] data;
+    std::free(data);
     data = temp;
 }
 
@@ -74,11 +83,11 @@ DynamicArray<T>::DynamicArray(const DynamicArray<T>& other)
     currentSize = other.currentSize;
     currentCapacity = other.currentCapacity;
 
-    data = new T[currentCapacity];
+    data = (T*)std::malloc(currentCapacity * sizeof(T));
 
     for (int i = 0; i < currentSize; i++)
     {
-        data[i] = other.data[i];
+        new (&data[i]) T(other.data[i]);
     }
 }
 
@@ -87,13 +96,18 @@ DynamicArray<T>& DynamicArray<T>::operator=(const DynamicArray<T>& other)
 {
     if (this != &other)
     {
-        T* temp = new T[other.currentCapacity];
+        T* temp = (T*)std::malloc(other.currentCapacity * sizeof(T));
         for (int i = 0; i < other.currentSize; i++)
         {
-            temp[i] = other.data[i];
+            new (&temp[i]) T(other.data[i]);
         }
 
-        delete[] data;
+        for (int i = 0; i < currentSize; i++)
+        {
+            data[i].~T();
+        }
+        std::free(data);
+
         data = temp;
         currentSize = other.currentSize;
         currentCapacity = other.currentCapacity;
@@ -110,7 +124,8 @@ void DynamicArray<T>::append(const T& value)
         resize();
     }
 
-    data[currentSize++] = value;
+    new (&data[currentSize]) T(value);
+    currentSize++;
 }
 
 template<typename T>
@@ -127,12 +142,19 @@ void DynamicArray<T>::insert(int index, const T& value)
         resize();
     }
 
-    for (int i = currentSize; i > index; i--)
+    if (index == currentSize)
     {
-        data[i] = data[i - 1];
+        new (&data[index]) T(value);
     }
-
-    data[index] = value;
+    else
+    {
+        new (&data[currentSize]) T(data[currentSize - 1]);
+        for (int i = currentSize - 1; i > index; i--)
+        {
+            data[i] = data[i - 1];
+        }
+        data[index] = value;
+    }
     currentSize++;
 }
 
@@ -150,7 +172,7 @@ void DynamicArray<T>::remove(int index)
         data[i] = data[i + 1];
     }
 
-    data[currentSize - 1] = T();
+    data[currentSize - 1].~T();
     currentSize--;
 }
 
@@ -201,7 +223,7 @@ void DynamicArray<T>::clear()
 {
     for (int i = 0; i < currentSize; i++)
     {
-        data[i] = T();
+        data[i].~T();
     }
     currentSize = 0;
 }

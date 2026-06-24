@@ -20,13 +20,13 @@ int main()
     for(int i = 0; i < arr.size(); i++)
     {
         cout << arr.get(i) << " ";
-    }//till here
+    }
      cout << endl;
 
-    cout << "\nSize: " << arr.size() << endl; //arr size
-    cout << "Capacity: " << arr.capacity() << endl;//arr capacity
+    cout << "\nSize: " << arr.size() << endl; 
+    cout << "Capacity: " << arr.capacity() << endl;
 
-    arr.insert(2, 100); //insert 100 at index 2
+    arr.insert(2, 100); 
 
     cout << "\nAfter Insert at Index 2:" << endl;
 
