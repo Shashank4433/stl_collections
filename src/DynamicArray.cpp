@@ -1,51 +1,13 @@
-#ifndef DYNAMICARRAY_H
-#define DYNAMICARRAY_H
-
-#include <iostream>
-#include <cstdlib>
-#include <new>
-
-template<typename T>
-class DynamicArray
-{
-private:
-    T* data;
-    int currentSize;
-    int currentCapacity;
-
-    void resize();
-
-public:
-    DynamicArray();
-    ~DynamicArray();
-
-     DynamicArray(const DynamicArray& other);er);
-     DynamicArray& operator=(const DynamicArray& other); 
-        
-
-    void append(const T& value);
-    void insert(int index, const T& value);
-    void remove(int index);
-
-    T get(int index) const;
-    void set(int index, const T& value);
-
-    int size() const;
-    int capacity() const;
-    bool isEmpty() const;
-
-    void clear();
-
-    bool contains(const T& value) const;
-    int find(const T& value) const;
-};
-
 template<typename T>
 DynamicArray<T>::DynamicArray()
 {
     currentCapacity = 4;
     currentSize = 0;
     data = (T*)std::malloc(currentCapacity * sizeof(T));
+    if (data == nullptr)
+    {
+        throw std::bad_alloc();
+    }
 }
 
 template<typename T>
@@ -67,6 +29,10 @@ void DynamicArray<T>::resize()
     currentCapacity *= 2;
 
     T* temp = (T*)std::malloc(currentCapacity * sizeof(T));
+    if (temp == nullptr)
+    {
+        throw std::bad_alloc();
+    }
 
     for (int i = 0; i < currentSize; i++)
     {
@@ -85,6 +51,10 @@ DynamicArray<T>::DynamicArray(const DynamicArray<T>& other)
     currentCapacity = other.currentCapacity;
 
     data = (T*)std::malloc(currentCapacity * sizeof(T));
+    if (data == nullptr)
+    {
+        throw std::bad_alloc();
+    }
 
     for (int i = 0; i < currentSize; i++)
     {
@@ -98,6 +68,10 @@ DynamicArray<T>& DynamicArray<T>::operator=(const DynamicArray<T>& other)
     if (this != &other)
     {
         T* temp = (T*)std::malloc(other.currentCapacity * sizeof(T));
+        if (temp == nullptr)
+        {
+            throw std::bad_alloc();
+        }
         for (int i = 0; i < other.currentSize; i++)
         {
             new (&temp[i]) T(other.data[i]);
@@ -182,8 +156,7 @@ T DynamicArray<T>::get(int index) const
 {
     if (index < 0 || index >= currentSize)
     {
-        std::cout << "Invalid Index" << std::endl;
-        return T();
+        throw std::out_of_range("Invalid Index");
     }
 
     return data[index];
@@ -248,5 +221,3 @@ int DynamicArray<T>::find(const T& value) const
 
     return -1;
 }
-
-#endif
