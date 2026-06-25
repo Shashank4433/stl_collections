@@ -11,7 +11,7 @@ struct CustomHash
     size_t operator()(const K& key) const
     {
         return (size_t)key;
-    }
+    }   // convert key into hash value needed because hashmap does not store key directly
 };
 
 // Specialization for float
@@ -24,7 +24,7 @@ struct CustomHash<float>
             float f;
             size_t i;
         } u;
-        u.i = 0;
+        u.i = 0; //to avoid garbage values
         u.f = key;
         return u.i;
     }
